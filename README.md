@@ -22,7 +22,8 @@ There is currently no single extension build that supports both schema generatio
 -   Setup a Tachidesk server by following this [guide](https://github.com/Suwayomi/Tachidesk-Server#downloading-and-running-the-app).
 - Make sure the instance is available through the browser by connecting to the server ip:port (usually runs on port 4567)
 - Head to Tachidesk extensions page and install your favorite extensions.
-- Now install the this extension on your iOS device by clicking [here](https://suwayomi.github.io/tachidesk-paperback-ext/)
+- For Suwayomi v2.2, install the stable extension from the [upstream repository](https://suwayomi.github.io/tachidesk-paperback-ext/).
+- For Suwayomi v2.3, install the migrated extension from the [v2.3 repository](https://tahouse.github.io/tachidesk-paperback-ext/).
 - On Paperback head to Tachidesk extension settings and set the server ip:port (ex: http://192.168.1.10:4567)
 - All set! you can now enjoy Tachiyomi extensions on iOS
 
