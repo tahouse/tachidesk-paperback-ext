@@ -51,7 +51,7 @@ export const DEFAULT_USERNAME = "";
 export const DEFAULT_PASSWORD = "";
 
 export const DEFAULT_SERVER_CATEGORY: tachiCategory = {
-    id: 0,
+    id: "0",
     order: 0,
     name: "Default",
     default: true,
@@ -137,7 +137,7 @@ export const languages: Record<string, string> = {
 
 // ! Query Interfaces Start
 export interface tachiCategory {
-    id: number,
+    id: string,
     order: number,
     name: string,
     default: boolean,
@@ -158,7 +158,7 @@ export interface tachiSources {
 }
 
 export interface tachiManga {
-    "id": number,
+    "id": string,
     "sourceId": string,
     "url": string,
     "title": string,
@@ -189,13 +189,13 @@ export interface tachiManga {
 }
 
 export interface tachiChapter {
-    "id": number,
+    "id": string,
     "url": string,
     "name": string,
     "uploadDate": number,
     "chapterNumber": number,
     "scanlator": string,
-    "mangaId": number,
+    "mangaId": string,
     "read": boolean,
     "bookmarked": boolean,
     "lastPageRead": number,
@@ -454,7 +454,7 @@ export async function fetchServerCategories(stateManager: SourceStateManager, re
             }
 
             const category: tachiCategory = {
-                id: node.id,
+                id: String(node.id),
                 order: node.order ?? 0,
                 name: node.name,
                 default: !!node.default,
@@ -490,7 +490,7 @@ export async function getSelectedCategories(stateManager: SourceStateManager) {
 export function getCategoriesIds(categories: Record<string, tachiCategory>) {
     let categoryIds: string[] = [];
     Object.values(categories).forEach(category => {
-        categoryIds.push(JSON.stringify(category.id))
+        categoryIds.push(category.id)
     })
 
     return categoryIds
@@ -503,7 +503,7 @@ export function getCategoryFromId(categories: Record<string, tachiCategory>, id:
 export function getCategoryNameFromId(categories: Record<string, tachiCategory>, id: string) {
     let categoryName = "OLD ENTRY OR ERROR"
     Object.values(categories).forEach(category => {
-        if (JSON.stringify(category.id) == id) {
+        if (category.id == id) {
             categoryName = category.name
         }
     })

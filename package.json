@@ -5,6 +5,7 @@
   "description": "Community maintained Paperback extension repository",
   "main": "index.js",
   "scripts": {
+    "build": "npm run bundle",
     "bundle": "npx paperback bundle",
     "serve": "npx paperback serve",
     "test": "npx paperback test",
