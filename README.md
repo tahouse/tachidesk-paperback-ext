@@ -13,17 +13,14 @@ This  [Paperback](https://paperback.moe/) extension lets you use Tachiyomi exten
 ## Suwayomi compatibility
 
 - Extension release `0.8-v2` and the subsequent `fetchSourceManga` mutation fix were built against Suwayomi-Server `v2.2.2100`.
-- Suwayomi-Server `v2.3.2243` migrated database-backed GraphQL identifiers from numeric types to string-based `ID` types. The current development source includes the corresponding v2.3 migration.
-- The v2.3 GraphQL operations are not backward compatible with v2.2 because GraphQL requires variable declarations to match the server schema. Use `0.8-v2` with v2.2 servers and a v2.3-compatible build with v2.3 servers.
-
-There is currently no single extension build that supports both schema generations. A schema mismatch may appear in Paperback as an error such as `Variable id has coerced Null value for NonNull type Int`.
+- Suwayomi-Server `v2.3.2243` still exposes manga, chapter, and category IDs as GraphQL `Int`, and source IDs as `LongString`. It does not define a GraphQL `ID` scalar.
+- The current development source validates Paperback's string-form IDs before sending numeric GraphQL variables. This prevents invalid values from being serialized as `null`.
 
 ## Setup
 -   Setup a Tachidesk server by following this [guide](https://github.com/Suwayomi/Tachidesk-Server#downloading-and-running-the-app).
 - Make sure the instance is available through the browser by connecting to the server ip:port (usually runs on port 4567)
 - Head to Tachidesk extensions page and install your favorite extensions.
-- For Suwayomi v2.2, install the stable extension from the [upstream repository](https://suwayomi.github.io/tachidesk-paperback-ext/).
-- For Suwayomi v2.3, install the migrated extension from the [v2.3 repository](https://tahouse.github.io/tachidesk-paperback-ext/).
+- Install the stable extension from the [upstream repository](https://suwayomi.github.io/tachidesk-paperback-ext/) or the current development build from the [fork repository](https://tahouse.github.io/tachidesk-paperback-ext/).
 - On Paperback head to Tachidesk extension settings and set the server ip:port (ex: http://192.168.1.10:4567)
 - All set! you can now enjoy Tachiyomi extensions on iOS
 

@@ -158,7 +158,7 @@ export interface tachiSources {
 }
 
 export interface tachiManga {
-    "id": string,
+    "id": number,
     "sourceId": string,
     "url": string,
     "title": string,
@@ -189,13 +189,13 @@ export interface tachiManga {
 }
 
 export interface tachiChapter {
-    "id": string,
+    "id": number,
     "url": string,
     "name": string,
     "uploadDate": number,
     "chapterNumber": number,
     "scanlator": string,
-    "mangaId": string,
+    "mangaId": number,
     "read": boolean,
     "bookmarked": boolean,
     "lastPageRead": number,
