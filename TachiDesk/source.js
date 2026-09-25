@@ -3470,11 +3470,11 @@ const types_1 = require("@paperback/types");
 const Settings_1 = require("./Settings");
 const Common_1 = require("./Common");
 exports.TachiDeskInfo = {
-    author: 'ofelizestevez & Alles',
+    author: 'ofelizestevez, Alles & tahouse',
     description: 'Paperback extension which aims to bridge all of Tachidesks features and the Paperback App. (GraphQL)',
     icon: 'icon.png',
     name: 'Tachidesk',
-    version: '3.0.0',
+    version: '3.1.0',
     websiteBaseURL: "https://github.com/Suwayomi/Tachidesk-Server",
     contentRating: types_1.ContentRating.EVERYONE,
     sourceTags: [
@@ -3488,8 +3488,15 @@ exports.TachiDeskInfo = {
 // =================================================================
 // GraphQL Query / Mutation Definitions
 // =================================================================
+function parseGraphQLInt(value, name) {
+    const parsed = Number(value);
+    if (!Number.isInteger(parsed) || parsed < -2147483648 || parsed > 2147483647) {
+        throw new Error(`Invalid ${name}: ${String(value)}`);
+    }
+    return parsed;
+}
 const GQL_GET_MANGA = `
-    query GetManga($id: ID!) {
+    query GetManga($id: Int!) {
         manga(id: $id) {
             id
             title
@@ -3504,7 +3511,7 @@ const GQL_GET_MANGA = `
     }
 `;
 const GQL_GET_MANGA_ONLINE_FETCH = `
-    mutation FetchManga($id: ID!) {
+    mutation FetchManga($id: Int!) {
         fetchManga(input: { id: $id }) {
             manga {
                 id
@@ -3515,7 +3522,7 @@ const GQL_GET_MANGA_ONLINE_FETCH = `
     }
 `;
 const GQL_GET_CHAPTERS = `
-    query GetChapters($mangaId: ID!) {
+    query GetChapters($mangaId: Int!) {
         chapters(condition: { mangaId: $mangaId }, orderBy: SOURCE_ORDER, orderByType: DESC) {
             nodes {
                 id
@@ -3530,7 +3537,7 @@ const GQL_GET_CHAPTERS = `
     }
 `;
 const GQL_FETCH_CHAPTERS = `
-    mutation FetchChapters($mangaId: ID!) {
+    mutation FetchChapters($mangaId: Int!) {
         fetchChapters(input: { mangaId: $mangaId }) {
             chapters {
                 id
@@ -3540,7 +3547,7 @@ const GQL_FETCH_CHAPTERS = `
     }
 `;
 const GQL_GET_CHAPTER = `
-    query GetChapter($mangaId: ID!, $sourceOrder: Int!) {
+    query GetChapter($mangaId: Int!, $sourceOrder: Int!) {
         chapters(condition: { mangaId: $mangaId, sourceOrder: $sourceOrder }, first: 1) {
             nodes {
                 id
@@ -3554,7 +3561,7 @@ const GQL_GET_CHAPTER = `
     }
 `;
 const GQL_FETCH_CHAPTER_PAGES = `
-    mutation FetchChapterPages($chapterId: ID!) {
+    mutation FetchChapterPages($chapterId: Int!) {
         fetchChapterPages(input: { chapterId: $chapterId }) {
             pages
         }
@@ -3585,7 +3592,7 @@ const GQL_GET_RECENT_CHAPTERS = `
     }
 `;
 const GQL_GET_CATEGORY_MANGAS = `
-    query GetCategoryMangas($categoryId: ID!) {
+    query GetCategoryMangas($categoryId: Int!) {
         category(id: $categoryId) {
             id
             name
@@ -3600,7 +3607,7 @@ const GQL_GET_CATEGORY_MANGAS = `
     }
 `;
 const GQL_GET_SOURCE_MANGAS = `
-    mutation GetSourceMangas($sourceId: ID!, $type: FetchSourceMangaType!, $page: Int!) {
+    mutation GetSourceMangas($sourceId: LongString!, $type: FetchSourceMangaType!, $page: Int!) {
         fetchSourceManga(input: { source: $sourceId, type: $type, page: $page }) {
             hasNextPage
             mangas {
@@ -3612,7 +3619,7 @@ const GQL_GET_SOURCE_MANGAS = `
     }
 `;
 const GQL_SEARCH_SOURCE = `
-    mutation SearchSource($sourceId: ID!, $query: String, $page: Int!) {
+    mutation SearchSource($sourceId: LongString!, $query: String, $page: Int!) {
         fetchSourceManga(input: { source: $sourceId, type: SEARCH, page: $page, query: $query }) {
             hasNextPage
             mangas {
@@ -3624,7 +3631,7 @@ const GQL_SEARCH_SOURCE = `
     }
 `;
 const GQL_GET_MANGA_FULL = `
-    query GetMangaFull($id: ID!) {
+    query GetMangaFull($id: Int!) {
         manga(id: $id) {
             id
             title
@@ -3636,7 +3643,7 @@ const GQL_GET_MANGA_FULL = `
     }
 `;
 const GQL_UPDATE_CHAPTER_READ = `
-    mutation UpdateChapter($id: ID!) {
+    mutation UpdateChapter($id: Int!) {
         updateChapter(input: { id: $id, patch: { isRead: true } }) {
             chapter {
                 id
@@ -3695,7 +3702,7 @@ class TachiDesk {
     }
     async getMangaDetails(mangaId) {
         const result = await (0, Common_1.graphqlRequest)(this.stateManager, this.requestManager, GQL_GET_MANGA, {
-            id: mangaId
+            id: parseGraphQLInt(mangaId, "manga ID")
         });
         const manga = result.data.manga;
         const serverURL = await (0, Common_1.getServerURL)(this.stateManager);
@@ -3723,9 +3730,10 @@ class TachiDesk {
         });
     }
     async getChapters(mangaId) {
+        const parsedMangaId = parseGraphQLInt(mangaId, "manga ID");
         // Get manga to check lastFetchedAt
         const mangaResult = await (0, Common_1.graphqlRequest)(this.stateManager, this.requestManager, GQL_GET_MANGA, {
-            id: mangaId
+            id: parsedMangaId
         });
         const manga = mangaResult.data.manga;
         // If last fetched more than a day ago, fetch online
@@ -3733,10 +3741,10 @@ class TachiDesk {
         if (lastFetched < Math.floor(Date.now() / 1000) - 86400) {
             try {
                 await (0, Common_1.graphqlRequest)(this.stateManager, this.requestManager, GQL_GET_MANGA_ONLINE_FETCH, {
-                    id: mangaId
+                    id: parsedMangaId
                 });
                 await (0, Common_1.graphqlRequest)(this.stateManager, this.requestManager, GQL_FETCH_CHAPTERS, {
-                    mangaId
+                    mangaId: parsedMangaId
                 });
             }
             catch (e) {
@@ -3744,7 +3752,7 @@ class TachiDesk {
             }
         }
         const chaptersResult = await (0, Common_1.graphqlRequest)(this.stateManager, this.requestManager, GQL_GET_CHAPTERS, {
-            mangaId
+            mangaId: parsedMangaId
         });
         this.serverAddress = await (0, Common_1.getServerURL)(this.stateManager);
         const chapters = [];
@@ -3763,8 +3771,8 @@ class TachiDesk {
         const serverURL = await (0, Common_1.getServerURL)(this.stateManager);
         // chapterId here is the sourceOrder. We need to look up the actual chapter id.
         const chapterResult = await (0, Common_1.graphqlRequest)(this.stateManager, this.requestManager, GQL_GET_CHAPTER, {
-            mangaId,
-            sourceOrder: parseInt(chapterId)
+            mangaId: parseGraphQLInt(mangaId, "manga ID"),
+            sourceOrder: parseGraphQLInt(chapterId, "chapter source order")
         });
         const chapterNode = chapterResult.data.chapters.nodes[0];
         if (!chapterNode) {
@@ -3772,7 +3780,7 @@ class TachiDesk {
         }
         // Trigger page fetch (also gets the page URLs)
         const pagesResult = await (0, Common_1.graphqlRequest)(this.stateManager, this.requestManager, GQL_FETCH_CHAPTER_PAGES, {
-            chapterId: chapterNode.id
+            chapterId: parseGraphQLInt(chapterNode.id, "chapter ID")
         });
         let pages = [];
         const fetchedPages = pagesResult.data?.fetchChapterPages?.pages;
@@ -3922,7 +3930,7 @@ class TachiDesk {
                     }
                     else if (section.type === "category") {
                         const res = await (0, Common_1.graphqlRequest)(this.stateManager, this.requestManager, GQL_GET_CATEGORY_MANGAS, {
-                            categoryId: String(section.id)
+                            categoryId: parseGraphQLInt(section.id, "category ID")
                         });
                         mangas = res.data.category.mangas.nodes;
                     }
@@ -3980,7 +3988,7 @@ class TachiDesk {
             }
             case "category": {
                 const res = await (0, Common_1.graphqlRequest)(this.stateManager, this.requestManager, GQL_GET_CATEGORY_MANGAS, {
-                    categoryId: sourceId
+                    categoryId: parseGraphQLInt(sourceId, "category ID")
                 });
                 mangas = res.data.category.mangas.nodes;
                 hasNextPage = false; // Categories don't have pages
@@ -4064,7 +4072,7 @@ class TachiDesk {
     async getMangaProgress(mangaId) {
         console.log(`getting manga progress for ${mangaId}`);
         const result = await (0, Common_1.graphqlRequest)(this.stateManager, this.requestManager, GQL_GET_MANGA_FULL, {
-            id: mangaId
+            id: parseGraphQLInt(mangaId, "manga ID")
         });
         const manga = result.data.manga;
         if (!manga?.lastReadChapter) {
@@ -4092,15 +4100,15 @@ class TachiDesk {
                 console.log(`marking mangaId ${readAction.mangaId} with sourceChapterId ${readAction.sourceChapterId} as read`);
                 // sourceChapterId is sourceOrder; resolve to actual chapter id
                 const chapterResult = await (0, Common_1.graphqlRequest)(this.stateManager, this.requestManager, GQL_GET_CHAPTER, {
-                    mangaId: readAction.mangaId,
-                    sourceOrder: parseInt(readAction.sourceChapterId)
+                    mangaId: parseGraphQLInt(readAction.mangaId, "manga ID"),
+                    sourceOrder: parseGraphQLInt(readAction.sourceChapterId, "chapter source order")
                 });
                 const chapterNode = chapterResult.data?.chapters?.nodes?.[0];
                 if (!chapterNode) {
                     throw new Error(`Chapter not found for manga ${readAction.mangaId} order ${readAction.sourceChapterId}`);
                 }
                 await (0, Common_1.graphqlRequest)(this.stateManager, this.requestManager, GQL_UPDATE_CHAPTER_READ, {
-                    id: chapterNode.id
+                    id: parseGraphQLInt(chapterNode.id, "chapter ID")
                 });
                 await actionQueue.discardChapterReadAction(readAction);
             }

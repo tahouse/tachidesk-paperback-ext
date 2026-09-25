@@ -19,17 +19,15 @@
 <h2 id="suwayomi-compatibility" class="tsd-anchor-link">Suwayomi compatibility<a href="#suwayomi-compatibility" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
 <ul>
 <li>Extension release <code>0.8-v2</code> and the subsequent <code>fetchSourceManga</code> mutation fix were built against Suwayomi-Server <code>v2.2.2100</code>.</li>
-<li>Suwayomi-Server <code>v2.3.2243</code> migrated database-backed GraphQL identifiers from numeric types to string-based <code>ID</code> types. The current development source includes the corresponding v2.3 migration.</li>
-<li>The v2.3 GraphQL operations are not backward compatible with v2.2 because GraphQL requires variable declarations to match the server schema. Use <code>0.8-v2</code> with v2.2 servers and a v2.3-compatible build with v2.3 servers.</li>
+<li>Suwayomi-Server <code>v2.3.2243</code> still exposes manga, chapter, and category IDs as GraphQL <code>Int</code>, and source IDs as <code>LongString</code>. It does not define a GraphQL <code>ID</code> scalar.</li>
+<li>The current development source validates Paperback's string-form IDs before sending numeric GraphQL variables. This prevents invalid values from being serialized as <code>null</code>.</li>
 </ul>
-<p>There is currently no single extension build that supports both schema generations. A schema mismatch may appear in Paperback as an error such as <code>Variable id has coerced Null value for NonNull type Int</code>.</p>
 <h2 id="setup" class="tsd-anchor-link">Setup<a href="#setup" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
 <ul>
 <li>Setup a Tachidesk server by following this <a href="https://github.com/Suwayomi/Tachidesk-Server#downloading-and-running-the-app">guide</a>.</li>
 <li>Make sure the instance is available through the browser by connecting to the server ip:port (usually runs on port 4567)</li>
 <li>Head to Tachidesk extensions page and install your favorite extensions.</li>
-<li>For Suwayomi v2.2, install the stable extension from the <a href="https://suwayomi.github.io/tachidesk-paperback-ext/">upstream repository</a>.</li>
-<li>For Suwayomi v2.3, install the migrated extension from the <a href="https://tahouse.github.io/tachidesk-paperback-ext/">v2.3 repository</a>.</li>
+<li>Install the stable extension from the <a href="https://suwayomi.github.io/tachidesk-paperback-ext/">upstream repository</a> or the current development build from the <a href="https://tahouse.github.io/tachidesk-paperback-ext/">fork repository</a>.</li>
 <li>On Paperback head to Tachidesk extension settings and set the server ip:port (ex: <a href="http://192.168.1.10:4567">http://192.168.1.10:4567</a>)</li>
 <li>All set! you can now enjoy Tachiyomi extensions on iOS</li>
 </ul>
